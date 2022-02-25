@@ -6,7 +6,7 @@ export default function (Alpine) {
 
     const propName = camelize(value)
     const propObj = el._x_dataStack[0]
-    const { argObj, argName } = resolve(el._x_dataStack[1], expression)
+    const { argObj, argName } = resolve(el._x_dataStack, expression)
     const evaluator = argObj ? null : evaluateLater(expression)
     const bind = argObj && modifiers.includes('bind')
 
@@ -44,25 +44,29 @@ export default function (Alpine) {
     return s.replace(/-./g, (x) => x[1].toUpperCase())
   }
 
-  function resolve(data, expression) {
+  function resolve(stack, expression) {
     let argObj = null
     let argName = null
 
-    if (data && expression in data) {
-      argObj = data
-      argName = expression
-    } else if (data && expression.includes('.')) {
-      const dotNotation = expression.split('.')
-      const obj = dotNotation
-        .slice(0, -1)
-        .reduce((o, i) => (typeof o === 'object' ? o[i] : null), data)
+    for (let i = 1; i < stack.length; i++) {
+      if (expression in stack[i]) {
+        argObj = stack[i]
+        argName = expression
+        break
+      } else if (expression.includes('.')) {
+        const dotNotation = expression.split('.')
+        const obj = dotNotation
+          .slice(0, -1)
+          .reduce((o, i) => (typeof o === 'object' ? o[i] : null), stack[i])
 
-      if (obj) {
-        const name = dotNotation.slice(-1)
+        if (obj) {
+          const name = dotNotation.slice(-1)
 
-        if (name in obj) {
-          argObj = obj
-          argName = name
+          if (name in obj) {
+            argObj = obj
+            argName = name
+            break
+          }
         }
       }
     }
