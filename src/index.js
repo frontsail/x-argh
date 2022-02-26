@@ -60,7 +60,7 @@ export default function (Alpine) {
         const dotNotation = expression.split('.')
         const obj = dotNotation
           .slice(0, -1)
-          .reduce((o, i) => (typeof o === 'object' ? o[i] : null), stack[i])
+          .reduce((o, i) => (typeof o === 'object' ? o[i] : false), stack[i])
 
         if (obj) {
           const name = dotNotation.slice(-1)
