@@ -1,6 +1,6 @@
 require('esbuild')
   .build({
-    entryPoints: ['./src/index.js'],
+    entryPoints: ['./src/cdn.js'],
     platform: 'browser',
     bundle: true,
     minify: true,
