@@ -4,9 +4,9 @@ export default function (Alpine) {
       return
     }
 
-    const propName = camelize(value)
+    let { argObj, argName, deep } = resolve(el._x_dataStack, expression)
     const propObj = el._x_dataStack[0]
-    const { argObj, argName } = resolve(el._x_dataStack, expression)
+    const propName = camelize(value)
     const evaluator = argObj ? null : evaluateLater(expression)
     const bind = argObj && modifiers.includes('bind')
 
@@ -14,6 +14,8 @@ export default function (Alpine) {
     let prevArgValue = undefined
 
     effect(() => {
+      deep && ({ argObj, argName, deep } = resolve(el._x_dataStack, expression))
+
       if (argObj) {
         // One-way binding
         if (argObj[argName] !== prevArgValue) {
@@ -47,6 +49,7 @@ export default function (Alpine) {
   function resolve(stack, expression) {
     let argObj = null
     let argName = null
+    let deep = false
 
     for (let i = 1; i < stack.length; i++) {
       if (expression in stack[i]) {
@@ -64,13 +67,14 @@ export default function (Alpine) {
 
           if (name in obj) {
             argObj = obj
-            argName = name
+            argName = name[0]
+            deep = obj !== stack[i]
             break
           }
         }
       }
     }
 
-    return { argObj, argName }
+    return { argObj, argName, deep }
   }
 }
