@@ -80,13 +80,14 @@ export default function (Alpine) {
         break
       } else if (expression.includes('.')) {
         const dotNotation = expression.split('.')
+        const last = dotNotation[dotNotation.length - 1]
         const obj = dotNotation
           .slice(0, -1)
           .reduce((o, i) => (typeof o === 'object' ? o[i] : false), stack[i])
 
-        if (obj) {
+        if (obj && /^[a-zA-Z0-9_$]+$/.test(last)) {
           argObj = obj
-          argName = dotNotation[dotNotation.length - 1]
+          argName = last
           deep = obj !== stack[i]
           break
         }
